@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+    <Metadata>
+        <Identity Id="MinimalisticViewPlus.0a055053-320f-4ff1-bb23-8c81054186de" Version="1.0" Language="en-US" Publisher="cvlnomen" />
+        <DisplayName>Hide Main Menu, Title Bar, and Tabs</DisplayName>
+        <Description xml:space="preserve">Hides main menu and title bar when not in use, can also hide tabs. Menu and title behave as a single panel and are shown on mouse over or alt/ctrl-q shortcuts. Has configurable options.</Description>
+        <MoreInfo>https://marketplace.visualstudio.com/items?itemName=Poma.MinimalisticViewPlus</MoreInfo>
+        <Icon>Resources\Icon.png</Icon>
+        <PreviewImage>Resources\Preview.png</PreviewImage>
+        <Tags>TabStrip, menu, tabs, hide menu, collapse, hide, Main Menu, Title Bar, titlebar, hide tabs, hide title</Tags>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Version="[18.0)" Id="Microsoft.VisualStudio.Community">
+            <ProductArchitecture>amd64</ProductArchitecture>
+        </InstallationTarget>
+        <InstallationTarget Version="[18.0)" Id="Microsoft.VisualStudio.Community">
+            <ProductArchitecture>x86</ProductArchitecture>
+        </InstallationTarget>
+    </Installation>
+    <Dependencies>
+        <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.7.2,)" />
+        <Dependency Id="Microsoft.VisualStudio.MPF.14.0" DisplayName="Visual Studio MPF 14.0" d:Source="Installed" Version="[14.0]" />
+    </Dependencies>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    </Assets>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,18.0)" DisplayName="Visual Studio core editor" />
+    </Prerequisites>
+</PackageManifest>
