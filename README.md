@@ -1,6 +1,6 @@
 # Minimalistic View Plus
 
-[VS Marketplace](https://marketplace.visualstudio.com/items?itemName=TODO!!!!!!!!!!!) | [Source Code](https://github.com/cvlnomen/MinimalisticViewPlus)
+[VS Marketplace](https://marketplace.visualstudio.com/items?itemName=MinimalisticViewPlus) | [Source Code](https://github.com/cvlnomen/MinimalisticViewPlus)
 
 This extension hides the title bar and tool bar when not in use, and can also hide tabs. Title and tool bars behave as a single panel and are shown on mouse over or alt/ctrl-q shortcuts. Has configurable options.
 
