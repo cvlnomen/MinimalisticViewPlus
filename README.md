@@ -1,14 +1,11 @@
-# MinimalisticViewPlus
+# Minimalistic View Plus
 
-[VS Marketplace page](https://marketplace.visualstudio.com/items?itemName=TODO!!!!!!!!!!!)
+[VS Marketplace](https://marketplace.visualstudio.com/items?itemName=TODO!!!!!!!!!!!) | [Source Code](https://github.com/cvlnomen/MinimalisticViewPlus)
 
-This extension hides Menu bar, Title bar, and Tab Well. Menu and title bar are in auto-hide mode and are accessible if you press "Alt" or "Ctrl-Q" hotkey or hover mouse over window top. Tabs can also be hidden and you can easily switch between them using Ctrl-Tab or Ctrl-, and other navigation hotkeys.
+This extension hides the title bar and tool bar when not in use, and can also hide tabs. Title and tool bars behave as a single panel and are shown on mouse over or alt/ctrl-q shortcuts. Has configurable options.
 
-You can configure setting in Options -> Environment -> MinimalisticViewPlus
+You can configure settings in Options -> Environment -> MinimalisticViewPlus
 
-An extension for programmers who don't use mouse when writing code and want to get rid of unneeded panels that are taking up space and distracting from code.
+---
 
-If you are interested in extension please rate or review it - if enough people are interested I will develop more options and usability features. So far looks like nobody else uses it.
-
-![vs](https://poma.gallery.vsassets.io/_apis/public/gallery/publisher/Poma/extension/MinimalisticViewPlus/2.2/assetbyname/270471/1/2304362F12Fvs.png)
-
+This extension is forked from [MinimalisticView](https://github.com/poma/MinimalisticView) by poma, with additional features and fixes and made compatible with Visual Studio 2026.

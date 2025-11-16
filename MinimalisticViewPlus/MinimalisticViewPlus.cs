@@ -7,12 +7,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using Task = System.Threading.Tasks.Task;
 
 namespace MinimalisticViewPlus
 {
@@ -122,28 +122,35 @@ namespace MinimalisticViewPlus
         private DispatcherTimer _mouseLeaveTimer;
 
 
-        void UpdateMenuHeight()
+        private void UpdateMenuHeight()
         {
             UpdateElementHeight(_menuBar);
         }
 
-        void UpdateTitleHeight()
+        private void UpdateTitleHeight()
         {
-            if (!Options.HideMenuOnly)
+            UpdateElementHeight(_titleBar, Options.CollapsedTitleHeight);
+        }
+
+        private void UpdateTabsVisibility()
+        {
+            var dics = Application.Current.Resources.MergedDictionaries;
+            if (Options.TabsVisibility == Enums.TabVisibilityMode.AlwaysHide && !dics.Contains(ResourceOverrides))
             {
-                UpdateElementHeight(_titleBar, Options.CollapsedTitleHeight);
+                dics.Add(ResourceOverrides);
             }
-            else
+            if (Options.TabsVisibility == Enums.TabVisibilityMode.Show && dics.Contains(ResourceOverrides))
             {
-                _titleBar.ClearValue(FrameworkElement.HeightProperty);
+                dics.Remove(ResourceOverrides);
             }
         }
 
-        void UpdateToolbarVisibility()
+        private void UpdateToolbarVisibility()
         {
             if (_toolBar != null)
             {
-                if (!Options.HideToolbar || IsMenuVisible)
+                if (Options.ToolbarVisibility == Enums.ToolbarVisibilityMode.Show ||
+                    (Options.ToolbarVisibility == Enums.ToolbarVisibilityMode.ShowOnHover && IsMenuVisible))
                 {
                     _toolBar.Visibility = Visibility.Visible;
                 }
@@ -154,13 +161,13 @@ namespace MinimalisticViewPlus
             }
         }
 
-        void UpdateElementHeight(FrameworkElement element, double collapsedHeight = 0)
+        private void UpdateElementHeight(FrameworkElement element, double collapsedHeight = 0)
         {
             if (element == null)
             {
                 return;
             }
-            if (IsMenuVisible || !Options.TitleBarAutoHide)
+            if (IsMenuVisible || Options.TitleBarVisibility == Enums.TitleBarVisibilityMode.Show)
             {
                 element.ClearValue(FrameworkElement.HeightProperty);
             }
@@ -170,7 +177,7 @@ namespace MinimalisticViewPlus
             }
         }
 
-        void AddElementHandlers(FrameworkElement element)
+        private void AddElementHandlers(FrameworkElement element)
         {
             if (element == null)
             {
@@ -181,34 +188,46 @@ namespace MinimalisticViewPlus
             element.MouseLeave += OnIsMouseOverChanged;
         }
 
-        void AddToolbarHandlers(FrameworkElement element)
+        private void AddToolbarHandlers(FrameworkElement element)
         {
             if (element == null)
             {
                 return;
             }
+            element.IsKeyboardFocusWithinChanged += OnContainerFocusChanged;
             element.MouseEnter += OnIsMouseOverChanged;
             element.MouseLeave += OnIsMouseOverChanged;
         }
 
         private void OnContainerFocusChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            IsMenuVisible = IsAggregateFocusInMenuContainer();
+            var hasFocus = IsAggregateFocusInMenuContainer();
+            if (!hasFocus && IsMenuVisible)
+            {
+                // When losing focus, use the mouse leave timer to respect the delay setting
+                _mouseLeaveTimer.IsEnabled = true;
+            }
+            else if (hasFocus)
+            {
+                // When gaining focus, show immediately and cancel any hide timer
+                _mouseLeaveTimer.IsEnabled = false;
+                IsMenuVisible = true;
+            }
         }
 
         private void PopupLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             if (IsMenuVisible && MenuBar != null && !IsAggregateFocusInMenuContainer())
             {
-                IsMenuVisible = false;
+                _mouseLeaveTimer.IsEnabled = true;
             }
         }
 
         private async void OnIsMouseOverChanged(object sender, MouseEventArgs e)
         {
-            await System.Threading.Tasks.Task.Delay(1); // Workaround for mouse transition issues between client and non-client area (when both areas have IsMouseOver set to false)
+            await Task.Delay(1); // Workaround for mouse transition issues between client and non-client area (when both areas have IsMouseOver set to false)
             var IsMouseOver = (_menuBar?.IsMouseOver ?? false)
-                || (!Options.HideMenuOnly && (_nonClientTracker.IsMouseOver || (_titleBar?.IsMouseOver ?? false)))
+                || (_nonClientTracker.IsMouseOver || (_titleBar?.IsMouseOver ?? false))
                 || (_toolBar?.IsMouseOver ?? false);
 
             // reset timers
@@ -233,26 +252,31 @@ namespace MinimalisticViewPlus
 
         private bool IsAggregateFocusInMenuContainer()
         {
-            if (MenuBar.IsKeyboardFocusWithin || (TitleBar.IsKeyboardFocusWithin && !Options.HideMenuOnly))
+            if (MenuBar.IsKeyboardFocusWithin || TitleBar.IsKeyboardFocusWithin || (ToolBar?.IsKeyboardFocusWithin ?? false))
                 return true;
             for (DependencyObject sourceElement = (DependencyObject)Keyboard.FocusedElement; sourceElement != null; sourceElement = sourceElement.GetVisualOrLogicalParent())
             {
-                if (sourceElement == MenuBar || (sourceElement == TitleBar && !Options.HideMenuOnly))
+                if (sourceElement == MenuBar || (sourceElement == TitleBar) || sourceElement == ToolBar)
                     return true;
             }
             return false;
         }
 
-        private void _mouseEnterTimer_Tick(object sender, EventArgs e)
+        private void MouseEnterTimer_Tick(object sender, EventArgs e)
         {
             _mouseEnterTimer.IsEnabled = false;
             IsMenuVisible = true;
         }
 
-        private void _mouseLeaveTimer_Tick(object sender, EventArgs e)
+        private void MouseLeaveTimer_Tick(object sender, EventArgs e)
         {
             _mouseLeaveTimer.IsEnabled = false;
-            if (!IsAggregateFocusInMenuContainer())
+
+            var IsMouseOver = (_menuBar?.IsMouseOver ?? false)
+                || (_nonClientTracker.IsMouseOver || (_titleBar?.IsMouseOver ?? false))
+                || (_toolBar?.IsMouseOver ?? false);
+
+            if (!IsAggregateFocusInMenuContainer() && !IsMouseOver)
             {
                 IsMenuVisible = false;
             }
@@ -284,7 +308,7 @@ namespace MinimalisticViewPlus
                 Trace.TraceError("mainWindow is null");
                 return;
             }
-            if (Options.HideTabs)
+            if (Options.TabsVisibility == Enums.TabVisibilityMode.AlwaysHide)
             {
                 Application.Current.Resources.MergedDictionaries.Add(ResourceOverrides);
             }
@@ -295,8 +319,8 @@ namespace MinimalisticViewPlus
             EventManager.RegisterClassHandler(typeof(UIElement), UIElement.LostKeyboardFocusEvent, new KeyboardFocusChangedEventHandler(PopupLostKeyboardFocus));
             _mouseEnterTimer = new DispatcherTimer { IsEnabled = false, Interval = TimeSpan.FromMilliseconds(Options.MouseEnterDelay) };
             _mouseLeaveTimer = new DispatcherTimer { IsEnabled = false, Interval = TimeSpan.FromMilliseconds(Options.MouseLeaveDelay) };
-            _mouseEnterTimer.Tick += _mouseEnterTimer_Tick;
-            _mouseLeaveTimer.Tick += _mouseLeaveTimer_Tick;
+            _mouseEnterTimer.Tick += MouseEnterTimer_Tick;
+            _mouseLeaveTimer.Tick += MouseLeaveTimer_Tick;
             Options.PropertyChanged += OptionsChanged;
         }
 
@@ -307,24 +331,15 @@ namespace MinimalisticViewPlus
                 case nameof(Options.CollapsedTitleHeight):
                     UpdateElementHeight(_titleBar, Options.CollapsedTitleHeight);
                     break;
-                case nameof(Options.TitleBarAutoHide):
-                case nameof(Options.HideMenuOnly):
+                case nameof(Options.TitleBarVisibility):
                     UpdateMenuHeight();
                     UpdateTitleHeight();
                     break;
-                case nameof(Options.HideToolbar):
+                case nameof(Options.ToolbarVisibility):
                     UpdateToolbarVisibility();
                     break;
-                case nameof(Options.HideTabs):
-                    var dics = Application.Current.Resources.MergedDictionaries;
-                    if (Options.HideTabs && !dics.Contains(ResourceOverrides))
-                    {
-                        dics.Add(ResourceOverrides);
-                    }
-                    if (!Options.HideTabs && dics.Contains(ResourceOverrides))
-                    {
-                        dics.Remove(ResourceOverrides);
-                    }
+                case nameof(Options.TabsVisibility):
+                    UpdateTabsVisibility();
                     break;
                 case nameof(Options.MouseEnterDelay):
                     _mouseEnterTimer.Interval = TimeSpan.FromMilliseconds(Options.MouseEnterDelay);

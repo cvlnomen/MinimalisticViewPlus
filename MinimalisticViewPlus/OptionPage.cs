@@ -6,70 +6,52 @@ namespace MinimalisticViewPlus
 {
     public class OptionPage : DialogPage, INotifyPropertyChanged
     {
-        bool _hideTabs = false;
-        [DisplayName("Hide tabs")]
-        [Description("Whether to hide tab bar")]
-        public bool HideTabs
+        Enums.TabVisibilityMode _tabsVisibility = Enums.TabVisibilityMode.Show;
+        [DisplayName("Tab visibility")]
+        [Description("Controls tab bar visibility: Show (always visible), Always hide (completely hidden).")]
+        [TypeConverter(typeof(EnumConverter))]
+        public Enums.TabVisibilityMode TabsVisibility
         {
             get
             {
-                return _hideTabs;
+                return _tabsVisibility;
             }
             set
             {
-                if (_hideTabs == value)
+                if (_tabsVisibility == value)
                 {
                     return;
                 }
 
-                _hideTabs = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HideTabs)));
+                _tabsVisibility = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TabsVisibility)));
             }
         }
 
-        bool _titleBarAutoHide = true;
-        [DisplayName("Hide title and menu bars")]
-        [Description("You can access menu bar using hotkeys such as Alt or Ctrl-Q")]
-        public bool TitleBarAutoHide
+        Enums.TitleBarVisibilityMode _titleBarVisibility = Enums.TitleBarVisibilityMode.ShowOnHover;
+        [DisplayName("Title bar visibility")]
+        [Description("Controls title bar visibility: Show (always visible), or Show on hover (appears when mouse hovers over tab area). " +
+            "You can always access title bar using hotkeys such as Alt or Ctrl-Q.")]
+        [TypeConverter(typeof(EnumConverter))]
+        public Enums.TitleBarVisibilityMode TitleBarVisibility
         {
             get
             {
-                return _titleBarAutoHide;
+                return _titleBarVisibility;
             }
             set
             {
-                if (_titleBarAutoHide == value)
+                if (_titleBarVisibility == value)
                 {
                     return;
                 }
 
-                _titleBarAutoHide = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TitleBarAutoHide)));
+                _titleBarVisibility = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TitleBarVisibility)));
             }
         }
 
-        bool _hideMenuOnly = false;
-        [DisplayName("Hide menu only")]
-        [Description("Hide menu bar but leave title bar visible")]
-        public bool HideMenuOnly
-        {
-            get
-            {
-                return _hideMenuOnly;
-            }
-            set
-            {
-                if (_hideMenuOnly == value)
-                {
-                    return;
-                }
-
-                _hideMenuOnly = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HideMenuOnly)));
-            }
-        }
-
-        int _collapsedTitleHeight = 2;
+        int _collapsedTitleHeight = 4;
         [DisplayName("Collapsed title height")]
         [Description("Height of collapsed title bar. If set to zero removes it completely but menu cannot expand on mouse over.")]
         public int CollapsedTitleHeight
@@ -92,7 +74,7 @@ namespace MinimalisticViewPlus
 
         int _mouseEnterDelay = 0;
         [DisplayName("Mouse enter delay")]
-        [Description("Delay after mouse enters collapsed menu and before menu pops up, in milliseconds")]
+        [Description("Delay after mouse enters collapsed menu and before menu pops up, in milliseconds.")]
         public int MouseEnterDelay
         {
             get
@@ -111,9 +93,9 @@ namespace MinimalisticViewPlus
             }
         }
 
-        int _mouseLeaveDelay = 200;
+        int _mouseLeaveDelay = 0;
         [DisplayName("Mouse leave delay")]
-        [Description("Delay after mouse leaves menu and before menu collapses back, in milliseconds. Recommended to set a value greater than zero to avoid mouse clicks being ignored")]
+        [Description("Delay after mouse leaves menu and before menu collapses back, in milliseconds.")]
         public int MouseLeaveDelay
         {
             get
@@ -132,24 +114,25 @@ namespace MinimalisticViewPlus
             }
         }
 
-        bool _hideToolbar = false;
-        [DisplayName("Hide toolbar")]
-        [Description("Whether to hide the standard toolbar")]
-        public bool HideToolbar
+        Enums.ToolbarVisibilityMode _toolbarVisibility = Enums.ToolbarVisibilityMode.ShowOnHover;
+        [DisplayName("Toolbar visibility")]
+        [Description("Controls toolbar visibility: Show (always visible), Always hide (completely hidden), or Show on hover (appears when mouse hovers over menu area).")]
+        [TypeConverter(typeof(EnumConverter))]
+        public Enums.ToolbarVisibilityMode ToolbarVisibility
         {
             get
             {
-                return _hideToolbar;
+                return _toolbarVisibility;
             }
             set
             {
-                if (_hideToolbar == value)
+                if (_toolbarVisibility == value)
                 {
                     return;
                 }
 
-                _hideToolbar = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HideToolbar)));
+                _toolbarVisibility = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ToolbarVisibility)));
             }
         }
 
